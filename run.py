@@ -1,9 +1,11 @@
 import click
-import torch
 import numpy as np
+import torch
 from unityagents import UnityEnvironment
 
 from agent import Agent
+
+N_AGENTS = 2
 
 
 def run(env, agent, n_episodes):
@@ -18,21 +20,20 @@ def run(env, agent, n_episodes):
     brain_name = env.brain_names[0]
     brain = env.brains[brain_name]
 
-    n_agents = 2
-
     mean_scores = []
 
     for i in range(1, n_episodes + 1):
         env_info = env.reset(train_mode=False)[brain_name]
 
         states = env_info.vector_observations
-        scores = np.zeros(n_agents)
+        scores = np.zeros(N_AGENTS)
 
         step = 0
         while True:
             step += 1
-            actions = np.array([np.squeeze(agent.act(states[j], add_noise=False))
-                                for j in range(n_agents)])
+            actions = np.array(
+                [np.squeeze(agent.act(states[j], add_noise=False))
+                 for j in range(N_AGENTS)])
             env_info = env.step(actions)[brain_name]
             next_states = env_info.vector_observations
             rewards = env_info.rewards
@@ -53,11 +54,10 @@ def run(env, agent, n_episodes):
 @click.command()
 @click.option('--environment', required=True,
               help="Path to Unity environment", type=click.Path())
-@click.option('--layer1', default=16, help="Number of units in hidden layer")
 @click.option('--n-episodes', default=3, help="Number of episodes to run")
 @click.option('--weights-input', default='weights.pth', help="Network weights",
               type=click.Path())
-def main(environment, layer1, n_episodes, weights_input):
+def main(environment, n_episodes, weights_input):
     env = UnityEnvironment(file_name=environment)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
