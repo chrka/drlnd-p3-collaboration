@@ -45,7 +45,7 @@ def run(env, agent, n_episodes):
             if np.any(dones):
                 break
 
-        scores.append(mean_score)
+        mean_scores.append(mean_score)
         print(f"\nEpisode {i}\t Score {mean_score}")
 
     return mean_scores
