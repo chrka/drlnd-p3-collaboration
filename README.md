@@ -1,19 +1,18 @@
-# DRLND Project 2: Continuous Control
+# DRLND Project 3: Collaboration and Competition
 
-_insert youtube capture here
+<iframe width="560" height="315" src="https://www.youtube.com/embed/VhOlxvI-CNs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-The goal of the agent is to control a double-jointed arm and have it follow
-a goal target.
+The goal of the agents is to play tennis; they have to bounce a ball between them over a net using 
+rackets, without letting the ball hit the ground or fly out of bounds.
 
-The agent receives information about the position, rotation, velocity, and
-angular velocities of the arm, for a total of 33 variables, ie., the agent
-is dealing with a 33-dimensional state space. It controls the torques of the two 
-joints described by a 4-dimensional action where each value is in the interval
-$[-1,+1]$.
+An agent receives information of the positions and velocities of the ball and the rackets, 
+in total 8 variables corresponding to a 24-dimensional state space.
+The agents control their movement back and forth, and can also jump up, which leads
+to a 2-dimensional action space.
 
-The agent receives a reward of +0.1 each time step the agent manages to keep
-the arm's hand in the goal target. The task is considered solved when the agent
-manages to get an average score of at least +30 over 100 consecutive episodes.
+The agents receive a reward of +0.1 if it hits the ball over the net, but if the ball goes out of bounds or
+drop to the floor, the agent instead receives a reward of -0.01. The task is considered solved when the average of
+the maximum score of either agent per episode stays over +0.5 for 100 consecutive episodes. 
 
 ## Installation
 
@@ -39,15 +38,15 @@ pip install -r requirements.txt
 Download the Unity environment appropriate for your operating system using the links below and unzip
 it into the project folder.
 
-- Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Linux.zip)
-- Mac OSX: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher.app.zip)
+- Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Linux.zip)
+- Mac OSX: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis.app.zip)
 - Windows (32-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Windows_x86.zip)
 - Windows (64-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Windows_x86_64.zip)
 
 ## Training and Running the Agent
 
-To train the agent, use the `train.py` program which takes the Unity environment
-and optional arguments to experiment with various parameters.
+To train the agent, use the `train.py` program which takes the Unity environment,
+and optionally locations of output files and/or a random seed.
 
 ```shell
 (drlnd) $ python train.py --help
@@ -55,25 +54,21 @@ Usage: train.py [OPTIONS]
 
 Options:
   --environment PATH     Path to Unity environment  [required]
-    ...
+  --plot-output PATH     Output file for score plot
+  --scores-output PATH   Output file for scores
+  --weights-output PATH  File to save weights to after success
   --seed INTEGER         Random seed
   --help                 Show this message and exit.
 ```
 
-The default values are:
-
-| Option | Value |
-|--------|-------|
-|seed | None — do not set | 
-
 For example:
 
 ```shell
-(drlnd) $ python train.py --environment=Reacher.app --seed=20190415 
+(drlnd) $ python train.py --environment=Tennis.app --seed=20190415 
 ```
 
 After successfully training the agent, use the `run.py` program to load
-the weights and run the simulation, which takes similar parameters as
+weights and run the simulation, which takes similar parameters as
 the training program:
 
 ```shell
@@ -82,17 +77,12 @@ Usage: run.py [OPTIONS]
 
 Options:
   --environment PATH    Path to Unity environment  [required]
-    ...
+  --n-episodes INTEGER  Number of episodes to run
+  --weights-input PATH  Network weights
   --help                Show this message and exit.
 ```
 
-Default values for running the agent are:
-
-| Option | Value |
-|--------|-------|
-|n-episodes | 3|
-
 For example:
 ```
-(drlnd) $ python run.py --environment=Reacher.app ...
+(drlnd) $ python run.py --environment=Tennis.app --weights-input weights.pth
 ```
