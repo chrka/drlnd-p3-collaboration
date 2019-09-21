@@ -2,6 +2,8 @@
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/VhOlxvI-CNs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+(_The video is from an agent trained beyond the minimum requirements of this project._)
+
 The goal of the agents is to play tennis; they have to bounce a ball between them over a net using 
 rackets, without letting the ball hit the ground or fly out of bounds.
 
