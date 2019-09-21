@@ -25,8 +25,8 @@ def train(env, agent, weight_path, n_episodes=1000, threshold=0.5):
     brain_name = env.brain_names[0]
     brain = env.brains[brain_name]
 
-    mean_scores = []
-    mean_score_window = deque(maxlen=100)
+    max_scores = []
+    max_score_window = deque(maxlen=100)
     best_score = -np.Inf
 
     for i in range(1, n_episodes + 1):
@@ -52,19 +52,18 @@ def train(env, agent, weight_path, n_episodes=1000, threshold=0.5):
             if np.any(dones):
                 break
 
-        mean_score = np.mean(scores)
         max_score = np.max(scores)
 
-        mean_score_window.append(mean_score)
-        mean_scores.append(mean_score)
+        max_score_window.append(max_score)
+        max_scores.append(max_score)
 
         if max_score > best_score:
             best_score = max_score
 
         print(
-            f"\rEpisode {i:4d}\tAverage score {np.mean(mean_score_window):.2f} (last {mean_score:.2f} [best now {max_score:.2f} vs. ever {best_score:.2f}])",
+            f"\rEpisode {i:4d}\tAverage score {np.mean(max_score_window):.2f} (last max {max_score:.2f} [ever {best_score:.2f}])",
             end="\n" if i % 100 == 0 else "")
-        if len(mean_score_window) >= 100 and np.mean(mean_score_window) > threshold:
+        if len(max_score_window) >= 100 and np.mean(max_score_window) > threshold:
             print(f"\nEnvironment solved in {i} episodes.")
             agent.save_weights(weight_path)
             break
@@ -74,11 +73,11 @@ def train(env, agent, weight_path, n_episodes=1000, threshold=0.5):
             agent.save_weights(f"{weight_path}-{i}-CHECKPOINT")
 
     # Save weights even if not solved
-    if len(mean_score_window) < 100 or np.mean(mean_score_window) < threshold:
+    if len(max_score_window) < 100 or np.mean(max_score_window) < threshold:
         print("\nFailed to solve environment.")
         agent.save_weights(weight_path + "-FAILED")
 
-    return mean_scores
+    return max_scores
 
 def export_scores(path, score):
     """Quick and dirty export of array to text file"""
@@ -107,7 +106,7 @@ def main(environment, plot_output, scores_output, weights_output, seed):
         torch.random.manual_seed(seed)
 
     # Initialize Unity environment from external file
-    env = UnityEnvironment(file_name=environment, no_graphics=False,
+    env = UnityEnvironment(file_name=environment, no_graphics=True,
                            seed=seed if seed else 0)
 
     # Use CUDA if available, cpu otherwise
