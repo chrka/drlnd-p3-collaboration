@@ -1,5 +1,6 @@
 import click
 import torch
+import numpy as np
 from unityagents import UnityEnvironment
 
 from agent import Agent
@@ -17,27 +18,36 @@ def run(env, agent, n_episodes):
     brain_name = env.brain_names[0]
     brain = env.brains[brain_name]
 
-    scores = []
+    n_agents = 2
+
+    mean_scores = []
+
     for i in range(1, n_episodes + 1):
         env_info = env.reset(train_mode=False)[brain_name]
-        state = env_info.vector_observations[0]
-        score = 0
+
+        states = env_info.vector_observations
+        scores = np.zeros(n_agents)
+
         step = 0
         while True:
             step += 1
-            action = agent.act(state, add_noise=False)
-            env_info = env.step(action)[brain_name]
-            next_state = env_info.vector_observations[0]
-            reward = env_info.rewards[0]
-            done = env_info.local_done[0]
-            state = next_state
-            score += reward
-            print(f"\rStep: {step:3d}\tScore {score}", end="")
-            if done:
+            actions = np.array([np.squeeze(agent.act(states[j], add_noise=False))
+                                for j in range(n_agents)])
+            env_info = env.step(actions)[brain_name]
+            next_states = env_info.vector_observations
+            rewards = env_info.rewards
+            dones = env_info.local_done
+            states = next_states
+            scores += rewards
+            mean_score = np.mean(scores)
+            print(f"\rStep: {step:3d}\tScore {mean_score}", end="")
+            if np.any(dones):
                 break
-        scores.append(score)
-        print(f"\nEpisode {i}\t Score {score}")
-    return scores
+
+        scores.append(mean_score)
+        print(f"\nEpisode {i}\t Score {mean_score}")
+
+    return mean_scores
 
 
 @click.command()
@@ -51,7 +61,7 @@ def main(environment, layer1, n_episodes, weights_input):
     env = UnityEnvironment(file_name=environment)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    agent = Agent(state_size=33, action_size=4, device=device)
+    agent = Agent(state_size=24, action_size=2, device=device)
     agent.load_weights(weights_input)
 
     run(env, agent, n_episodes)

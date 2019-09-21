@@ -38,7 +38,6 @@ def train(env, agent, weight_path, n_episodes=1000, threshold=0.5,
         scores = np.zeros(n_agents)
 
         while True:
-            # TODO: Do more runs before updating to get better estimate of reward?
             actions = np.array([np.squeeze(agent.act(states[j]))
                                 for j in range(n_agents)])
             env_info = env.step(actions)[brain_name]
